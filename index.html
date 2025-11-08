@@ -1,0 +1,498 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termux青龙面板教程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#EC4899',
+                        neutral: '#1F2937',
+                        accent: '#10B981'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .btn-primary {
+                @apply bg-gradient-to-r from-primary to-purple-600 hover:from-purple-600 hover:to-primary text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+            }
+            .btn-secondary {
+                @apply bg-gradient-to-r from-secondary to-pink-500 hover:from-pink-500 hover:to-secondary text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+            }
+            .btn-github {
+                @apply bg-gradient-to-r from-neutral to-gray-700 hover:from-gray-700 hover:to-neutral text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+            }
+            .btn-bilibili {
+                @apply bg-gradient-to-r from-[#FB7299] to-[#ff5691] hover:from-[#ff5691] hover:to-[#FB7299] text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+            }
+            .step-card {
+                @apply bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 transition-all duration-300 hover:shadow-2xl;
+            }
+            .snowflake {
+                @apply absolute text-white opacity-70 pointer-events-none;
+                animation: fall linear infinite;
+            }
+            @keyframes fall {
+                0% {
+                    transform: translateY(-10px) rotate(0deg);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+            .command-block {
+                @apply bg-gray-50 border-l-4 border-primary px-4 py-3 rounded-lg font-mono text-sm overflow-x-auto flex justify-between items-center;
+            }
+            .command-copy {
+                @apply text-primary hover:text-secondary cursor-pointer transition-colors flex items-center gap-1;
+            }
+            .long-command {
+                @apply break-all;
+            }
+            @media (max-width: 640px) {
+                .long-command {
+                    @apply text-xs;
+                }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen overflow-x-hidden">
+    <div id="snow-container" class="fixed top-0 left-0 w-full h-full z-0 pointer-events-none"></div>
+    
+    <div class="container mx-auto px-4 py-10 max-w-2xl relative z-10">
+        <header class="text-center mb-16">
+            <!-- 主标题 -->
+            <div class="relative mb-6">
+                <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-600 to-secondary mb-4 tracking-tight">
+                    Termux
+                </h1>
+                <div class="absolute -top-2 -right-2 bg-gradient-to-r from-accent to-green-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    By. 消小潇
+                </div>
+            </div>
+            
+            <!-- 副标题 -->
+            <div class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">青龙面板安装教程</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full mb-4"></div>
+                <p class="text-gray-600 text-lg max-w-xl mx-auto">简洁步骤 · 高效配置 · 最小流程</p>
+            </div>
+            
+            <!-- 特色标签 -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <span class="bg-gradient-to-r from-primary/10 to-primary/20 text-primary font-semibold px-4 py-2 rounded-full text-sm flex items-center gap-1">
+                    <i class="fa fa-check-circle"></i> 已修正复制问题
+                </span>
+                <span class="bg-gradient-to-r from-secondary/10 to-secondary/20 text-secondary font-semibold px-4 py-2 rounded-full text-sm flex items-center gap-1">
+                    <i class="fa fa-eye"></i> 增强前端展示
+                </span>
+            </div>
+            
+            <!-- 按钮区域 -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+                <a href="https://b23.tv/7HWZutp" target="_blank" class="btn-bilibili group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <svg fill="currentColor" fill-rule="evenodd" height="1.2em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1.2em" xmlns="http://www.w3.org/2000/svg">
+                        <title>bilibili</title>
+                        <path clip-rule="evenodd" d="M4.977 3.561a1.31 1.31 0 111.818-1.884l2.828 2.728c.08.078.149.163.205.254h4.277a1.32 1.32 0 01.205-.254l2.828-2.728a1.31 1.31 0 011.818 1.884L17.82 4.66h.848A5.333 5.333 0 0124 9.992v7.34a5.333 5.333 0 01-5.333 5.334H5.333A5.333 5.333 0 010 17.333V9.992a5.333 5.333 0 015.333-5.333h.781L4.977 3.56zm.356 3.67a2.667 2.667 0 00-2.666 2.667v7.529a2.667 2.667 0 002.666 2.666h13.334a2.667 2.667 0 002.666-2.666v-7.53a2.667 2.667 0 00-2.666-2.666H5.333zm1.334 5.192a1.333 1.333 0 112.666 0v1.192a1.333 1.333 0 11-2.666 0v-1.192zM16 11.09c-.736 0-1.333.597-1.333 1.333v1.192a1.333 1.333 0 102.666 0v-1.192c0-.736-.597-1.333-1.333-1.333z"></path>
+                    </svg>
+                    <span>视频教程</span>
+                    <i class="fa fa-external-link ml-1 text-sm"></i>
+                </a>
+                
+                <a href="https://b23.tv/tVo3hes" target="_blank" class="btn-secondary group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    <svg fill="currentColor" fill-rule="evenodd" height="1.2em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1.2em" xmlns="http://www.w3.org/2000/svg">
+                        <title>bilibili</title>
+                        <path clip-rule="evenodd" d="M4.977 3.561a1.31 1.31 0 111.818-1.884l2.828 2.728c.08.078.149.163.205.254h4.277a1.32 1.32 0 01.205-.254l2.828-2.728a1.31 1.31 0 011.818 1.884L17.82 4.66h.848A5.333 5.333 0 0124 9.992v7.34a5.333 5.333 0 01-5.333 5.334H5.333A5.333 5.333 0 010 17.333V9.992a5.333 5.333 0 015.333-5.333h.781L4.977 3.56zm.356 3.67a2.667 2.667 0 00-2.666 2.667v7.529a2.667 2.667 0 002.666 2.666h13.334a2.667 2.667 0 002.666-2.666v-7.53a2.667 2.667 0 00-2.666-2.666H5.333zm1.334 5.192a1.333 1.333 0 112.666 0v1.192a1.333 1.333 0 11-2.666 0v-1.192zM16 11.09c-.736 0-1.333.597-1.333 1.333v1.192a1.333 1.333 0 102.666 0v-1.192c0-.736-.597-1.333-1.333-1.333z"></path>
+                    </svg>
+                    <span>更新教程</span>
+                    <i class="fa fa-refresh ml-1 text-sm"></i>
+                </a>
+            </div>
+            
+            <!-- 分隔线 -->
+            <div class="w-16 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full mb-6"></div>
+            
+            <!-- 提示信息 -->
+            <p class="text-gray-500 text-sm max-w-md mx-auto">如需分享，请分享视频教程链接，谢谢您的支持！</p>
+        </header>
+
+        <main>
+            <section class="step-card">
+                <h2 class="text-xl font-bold mb-5 flex items-center text-neutral">
+                    <span class="bg-gradient-to-r from-primary to-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 shadow-md" aria-hidden="true">1</span>
+                    准备阶段
+                </h2>
+                <div class="mb-6 pl-11">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">1. 下载并安装 Termux</h3>
+                    <div class="mb-4">
+                        <p class="text-gray-600 mb-3">最新版本（推荐优先尝试）：</p>
+                        <a href="https://github.com/termux/termux-app/releases" class="btn-github inline-block group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            <i class="fa fa-github" aria-hidden="true"></i>
+                            Github 下载
+                        </a>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 mb-3">若无法访问，选择固定版本（按优先级尝试，无法访问切换数据网）：</p>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="http://a1b2.eu.org:5244/d/%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%E4%BA%91%E7%9B%98/%E7%8E%A9%E6%9C%BA/Termux/termux-app_v0.118.3%2Bgithub-debug_arm64-v8a.apk" class="btn-primary inline-block group relative overflow-hidden">
+                                <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                                首选版本 (33.48MB)
+                            </a>
+                            <a href="http://a1b2.eu.org:5244/d/%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%E4%BA%91%E7%9B%98/%E7%8E%A9%E6%9C%BA/Termux/termux-app_v0.118.3%2Bgithub-debug_universal.apk" class="btn-primary inline-block bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-600 group relative overflow-hidden">
+                                <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                                备选版本 (112.32MB)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="pl-11">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. 弹窗权限全部允许</h3>
+                    <p class="text-gray-600 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-l-4 border-primary shadow-sm">
+                        打开 Termux 后，系统弹出的「存储权限」「文件访问」等所有请求，均点击「允许」，否则后续命令无法执行。
+                    </p>
+                </div>
+            </section>
+
+            <!-- 其余内容保持不变 -->
+            <section class="step-card">
+                <h2 class="text-xl font-bold mb-5 flex items-center text-neutral">
+                    <span class="bg-gradient-to-r from-primary to-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 shadow-md" aria-hidden="true">2</span>
+                    命令执行阶段
+                </h2>
+                <p class="text-gray-600 mb-6 pl-11">以下命令依次输入终端，按「回车」执行（长命令已直接展示并可复制）</p>
+                
+                <div class="flex items-start gap-3 mb-4">
+                    <span class="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-600 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm" aria-hidden="true">!</span>
+                    <p class="text-amber-700 bg-gradient-to-r from-amber-50 to-yellow-50 p-3 rounded-lg border-l-4 border-amber-400 text-sm shadow-sm">
+                        若第7步命令执行失败，优先切换「移动数据网络」重试（无需连接WiFi），网络环境影响较大。
+                    </p>
+                </div>
+                <div class="flex items-start gap-3 mb-6">
+                    <span class="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-600 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm" aria-hidden="true">!</span>
+                    <p class="text-amber-700 bg-gradient-to-r from-amber-50 to-yellow-50 p-3 rounded-lg border-l-4 border-amber-400 text-sm shadow-sm">
+                        仅首次需要执行全部命令，成功进入青龙后，第2次开始仅需从第11步开始即可！
+                    </p>
+                </div>
+
+                <div class="space-y-4 pl-11">
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">3</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>termux-setup-storage</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'termux-setup-storage')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">4</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>pkg update && pkg upgrade -y</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'pkg update && pkg upgrade -y')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">5</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>pkg install proot -y</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'pkg install proot -y')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">6</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>pkg install util-linux wget -y</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'pkg install util-linux wget -y')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">7</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code class="long-command">wget http://a1b2.eu.org:5244/d/%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%E4%BA%91%E7%9B%98/%E9%9D%92%E9%BE%99%E8%84%9A%E6%9C%AC/ql-backup.tar.gz</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'wget http://a1b2.eu.org:5244/d/%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%E4%BA%91%E7%9B%98/%E9%9D%92%E9%BE%99%E8%84%9A%E6%9C%AC/ql-backup.tar.gz')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">8</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>tar -zxvf ql-backup.tar.gz</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'tar -zxvf ql-backup.tar.gz')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">9</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>rm -rf ql-backup.tar.gz</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'rm -rf ql-backup.tar.gz')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">10</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>chmod -R 755 .alpine</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'chmod -R 755 .alpine')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">11</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>bash .alpine/MGCWM/termux-alpine</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'bash .alpine/MGCWM/termux-alpine')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="command-item">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 shadow-sm" aria-hidden="true">12</span>
+                            <span class="font-medium text-gray-800">By.消小潇</span>
+                        </div>
+                        <div class="command-block">
+                            <code>qinglong</code>
+                            <button class="command-copy" onclick="copyCommand(this, 'qinglong')" aria-label="复制命令">
+                                <i class="fa fa-copy" aria-hidden="true"></i>
+                                复制
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="mt-10 bg-gradient-to-r from-white/90 to-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6 text-center relative z-10 border border-white/50">
+            <p class="text-gray-500 text-sm mb-2">2025/10/10 14:23:15@消小潇</p>
+            <p id="hitokoto" class="text-gray-700 font-medium">加载中...</p>
+        </footer>
+    </div>
+
+    <script>
+        function createSnowflakes() {
+            const container = document.getElementById('snow-container');
+            const count = window.innerWidth < 768 ? 20 : 40;
+            
+            for (let i = 0; i < count; i++) {
+                const snowflake = document.createElement('i');
+                snowflake.className = 'snowflake fa fa-snowflake-o';
+                snowflake.setAttribute('aria-hidden', 'true');
+                
+                const size = Math.random() * 12 + 8;
+                const left = Math.random() * 100;
+                const delay = Math.random() * 10;
+                const duration = Math.random() * 15 + 10;
+                
+                snowflake.style.cssText = `
+                    font-size: ${size}px;
+                    left: ${left}%;
+                    animation-delay: ${delay}s;
+                    animation-duration: ${duration}s;
+                `;
+                
+                container.appendChild(snowflake);
+            }
+        }
+
+        function copyCommand(button, text) {
+            const originalText = button.innerHTML;
+            
+            // 显示复制中状态
+            button.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> 复制中';
+            button.classList.add('opacity-50');
+            button.disabled = true;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // 复制成功
+                button.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> 已复制';
+                
+                // 显示全局提示
+                showToast('复制成功！去终端粘贴执行吧', 'success');
+                
+                // 2秒后恢复按钮状态
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('opacity-50');
+                    button.disabled = false;
+                }, 2000);
+            }).catch(err => {
+                // 复制失败
+                console.error('复制失败:', err);
+                button.innerHTML = '<i class="fa fa-times" aria-hidden="true"></i> 复制失败';
+                
+                // 显示错误提示
+                showToast('复制失败，请手动选择文本复制', 'error');
+                
+                // 2秒后恢复按钮状态
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('opacity-50');
+                    button.disabled = false;
+                }, 2000);
+                
+                // 作为备用方案，尝试使用旧式复制方法
+                fallbackCopyText(text);
+            });
+        }
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('复制成功！去终端粘贴执行吧', 'success');
+            } catch (err) {
+                console.error('备用复制方法也失败了:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-gradient-to-r from-primary to-purple-600' : 'bg-gradient-to-r from-red-500 to-red-600';
+            
+            toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-2 transition-opacity duration-300`;
+            toast.innerHTML = `<i class="fa ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" aria-hidden="true"></i> ${message}`;
+            
+            document.body.appendChild(toast);
+            
+            // 添加进入动画
+            setTimeout(() => {
+                toast.classList.add('opacity-100');
+            }, 10);
+            
+            // 2秒后开始淡出
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 500);
+            }, 2000);
+        }
+
+        function fetchHitokoto() {
+            fetch('https://v1.hitokoto.cn')
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('网络响应异常');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    document.getElementById('hitokoto').textContent = data.hitokoto;
+                })
+                .catch((error) => {
+                    console.error('获取一言失败:', error);
+                    document.getElementById('hitokoto').textContent = '风过林梢，骄阳正好。';
+                });
+        }
+
+        // 添加键盘事件支持
+        function handleKeyDown(event) {
+            // 如果按下了回车键或空格键，并且焦点在复制按钮上
+            if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('command-copy')) {
+                event.preventDefault();
+                const commandText = event.target.parentElement.querySelector('code').textContent;
+                copyCommand(event.target, commandText);
+            }
+        }
+
+        window.onload = () => {
+            createSnowflakes();
+            fetchHitokoto();
+            document.addEventListener('keydown', handleKeyDown);
+        };
+    </script>
+</body>
+</html>
